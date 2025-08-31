@@ -23,6 +23,8 @@
 // Define a estrutura para um território, contendo seu nome, a cor do exército que o domina e o número de tropas.
 
 // --- Protótipos das Funções ---
+// Função do nível novato:
+void nivelNovato(void);
 // Declarações antecipadas de todas as funções que serão usadas no programa, organizadas por categoria.
 // Funções de setup e gerenciamento de memória:
 // Funções de interface com o usuário:
@@ -32,6 +34,7 @@
 // --- Função Principal (main) ---
 // Função principal que orquestra o fluxo do jogo, chamando as outras funções em ordem.
 int main() {
+    nivelNovato();
     // 1. Configuração Inicial (Setup):
     // - Define o locale para português.
     // - Inicializa a semente para geração de números aleatórios com base no tempo atual.
@@ -96,3 +99,97 @@ int main() {
 
 // limparBufferEntrada():
 // Função utilitária para limpar o buffer de entrada do teclado (stdin), evitando problemas com leituras consecutivas de scanf e getchar.
+
+// NIVEL NOVATO
+
+#include <stdio.h> // Biblioteca para entrada e saída de dados
+#include <string.h> // Biblioteca para manipulação de strings
+
+#define MAX_COUNTRIES 5 // Define o número máximo de territórios
+#define MAX_STR_LENGTH 50 // Define o tamanho máximo de uma string
+
+struct Country { // Define a estrutura de um território
+    char name[MAX_STR_LENGTH];
+    char army[MAX_STR_LENGTH];
+    int troops;
+};
+
+// Função para limpar o buffer de entrada do teclado
+// Para evitar problemas com leituras consecutivas de scanf e getchar
+// Pois quand o scanf usado múltiplas vezes por um loop
+// o getchar não limpa o buffer, e o próximo scanf lê o caractere anterior
+// então é necessário limpar o buffer com a função clearInputBuffer
+void clearInputBuffer() { 
+    int c; // Variável para armazenar o caractere lido
+    while (
+        (
+            c = getchar() // define que c recebe o último caractere lido
+        ) != '\n' && c != EOF // se o caractere lido não for uma nova linha e não for o final do arquivo, continue lendo
+    );
+}
+
+void nivelNovato() {
+    struct Country countries[MAX_COUNTRIES]; // Vetor de territórios
+    int totalCountries = 0; // Contador de territórios cadastrados
+
+    do {
+        // Printa o menu do nível novato e título do jogo
+        // Indicando o que o usuário deve fazer em seguida
+        printf("---------------------------------\n");
+        printf("         🧩 Nível Novato         \n");
+        printf("             WAR GAME            \n");
+        printf("---------------------------------\n");
+        printf("Vamos começar a montar o jogo!\n");
+        printf("Cadastre 5 territórios\n");
+
+        for (int i = 0; i < 5; i++) { // Loop para cadastrar 5 territórios
+
+            // Printa o índice do território que está sendo cadastrado
+            printf("---- Cadastrando território %d: ----\n", i + 1);
+
+            // Printa a indicação de que a informação a ser capturada é o nome do território
+            printf("Nome do território: \n");
+            fgets(countries[i].name, MAX_STR_LENGTH, stdin);
+
+            // Remove o caractere de nova linha do nome do território
+            countries[i].name[strcspn(countries[i].name, "\n")] = '\0';
+
+            // Printa a indicação de que a informação a ser capturada é o exército do território
+            printf("Exército do território (ex. Verde, Azul, etc.): \n");
+            fgets(countries[i].army, MAX_STR_LENGTH, stdin);
+
+            // Remove o caractere de nova linha do exército do território
+            countries[i].army[strcspn(countries[i].army, "\n")] = '\0';
+
+            // Printa a indicação de que a informação a ser capturada é a quantidade de tropas do território
+            printf("Quantidade de tropas do território: \n");
+            scanf("%d", &countries[i].troops);
+
+            // Limpa o buffer de entrada do teclado possibilitando a próxima captura de dados
+            clearInputBuffer();
+
+            // Incrementa o contador de territórios cadastrados
+            totalCountries++;
+        }
+    } while (totalCountries < 5); // Loop para continuar cadastrando territórios até que o total de territórios cadastrados seja igual a 5
+
+
+    printf("=================================\n");
+    printf("     Territórios cadastrados:    \n");
+    printf("=================================\n");
+
+    for (int i = 0; i < totalCountries; i++) {
+        // Percorre o vetor de territórios e printa as informações de cada um
+        printf("Território %d:\n", i + 1);
+        printf("- Nome: %s\n", countries[i].name);
+        printf("- Exército: %s\n", countries[i].army);
+        printf("- Tropas: %d\n", countries[i].troops);
+        printf("---------------------------------\n");
+    }
+
+    // Faz com que a aplicação aguarde o usuário pressionar enter antes de parar a execução;
+    printf("Aperte 'Enter' para sair\n");
+    getchar();
+
+    return;
+};
