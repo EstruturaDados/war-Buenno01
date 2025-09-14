@@ -16,25 +16,66 @@
 
 // Inclusão das bibliotecas padrão necessárias para entrada/saída, alocação de memória, manipulação de strings e tempo.
 
+#include <stdio.h> // Biblioteca para entrada e saída de dados
+#include <string.h> // Biblioteca para manipulação de strings
+#include <stdbool.h> // Biblioteca para usar o tipo booleano
+#include <stdlib.h> // Biblioteca para usar a função rand
+
 // --- Constantes Globais ---
 // Definem valores fixos para o número de territórios, missões e tamanho máximo de strings, facilitando a manutenção.
+
+#define MAX_COUNTRIES 5 // Define o número máximo de territórios
+#define MAX_STR_LENGTH 50 // Define o tamanho máximo de uma string
 
 // --- Estrutura de Dados ---
 // Define a estrutura para um território, contendo seu nome, a cor do exército que o domina e o número de tropas.
 
+struct Country { // Define a estrutura de um território
+    char name[MAX_STR_LENGTH];
+    char army[MAX_STR_LENGTH];
+    int troops;
+};
+
+struct Action { // Define ações do menu
+    int key; // Define o dígio para acessar a ação
+    char name[MAX_STR_LENGTH]; // Define o nome da ação
+    void (*function)(struct Country *countries, int totalCountries); // Define a função que será executada
+};
+
 // --- Protótipos das Funções ---
 // Função do nível novato:
 void nivelNovato(void);
+void nivelAventureiro(void);
+void nivelMestre(void);
 // Declarações antecipadas de todas as funções que serão usadas no programa, organizadas por categoria.
 // Funções de setup e gerenciamento de memória:
 // Funções de interface com o usuário:
+void getInputString(char *output);
+void getInputInt(int *output);
+void clearInputBuffer(void);
 // Funções de lógica principal do jogo:
+void attackCountry(struct Country *countries, int totalCountries);
+void exitGame(struct Country *countries, int totalCountries);
 // Função utilitária:
+int rollDice(void);
 
 // --- Função Principal (main) ---
 // Função principal que orquestra o fluxo do jogo, chamando as outras funções em ordem.
 int main() {
-    nivelNovato();
+    int version;
+
+    printf("Selecione a versão do jogo: \n");
+    printf("1. Novato\n");
+    printf("2. Aventureiro\n");
+    printf("3. Mestre\n");
+    getInputInt(&version);
+    if (version == 1) {
+        nivelNovato();
+    } else if (version == 2) {
+        nivelAventureiro();
+    } else if (version == 3) {
+        nivelMestre();
+    }
     // 1. Configuração Inicial (Setup):
     // - Define o locale para português.
     // - Inicializa a semente para geração de números aleatórios com base no tempo atual.
@@ -102,21 +143,9 @@ int main() {
 
 // NIVEL NOVATO
 
-#include <stdio.h> // Biblioteca para entrada e saída de dados
-#include <string.h> // Biblioteca para manipulação de strings
-
-#define MAX_COUNTRIES 5 // Define o número máximo de territórios
-#define MAX_STR_LENGTH 50 // Define o tamanho máximo de uma string
-
-struct Country { // Define a estrutura de um território
-    char name[MAX_STR_LENGTH];
-    char army[MAX_STR_LENGTH];
-    int troops;
-};
-
 // Função para limpar o buffer de entrada do teclado
 // Para evitar problemas com leituras consecutivas de scanf e getchar
-// Pois quand o scanf usado múltiplas vezes por um loop
+// Pois quando o scanf é usado múltiplas vezes por um loop
 // o getchar não limpa o buffer, e o próximo scanf lê o caractere anterior
 // então é necessário limpar o buffer com a função clearInputBuffer
 void clearInputBuffer() { 
@@ -126,6 +155,16 @@ void clearInputBuffer() {
             c = getchar() // define que c recebe o último caractere lido
         ) != '\n' && c != EOF // se o caractere lido não for uma nova linha e não for o final do arquivo, continue lendo
     );
+}
+
+void getInputString(char *output) { // Captura a string do input do usuário
+    fgets(output, MAX_STR_LENGTH, stdin);
+    output[strcspn(output, "\n")] = '\0'; // Remove o caractere de nova linha
+}
+
+void getInputInt(int *output) { // Captura o valor inteiro do input do usuário
+    scanf("%d", output);
+    clearInputBuffer();
 }
 
 void nivelNovato() {
@@ -149,24 +188,15 @@ void nivelNovato() {
 
             // Printa a indicação de que a informação a ser capturada é o nome do território
             printf("Nome do território: \n");
-            fgets(countries[i].name, MAX_STR_LENGTH, stdin);
-
-            // Remove o caractere de nova linha do nome do território
-            countries[i].name[strcspn(countries[i].name, "\n")] = '\0';
+            getInputString(countries[i].name);
 
             // Printa a indicação de que a informação a ser capturada é o exército do território
             printf("Exército do território (ex. Verde, Azul, etc.): \n");
-            fgets(countries[i].army, MAX_STR_LENGTH, stdin);
-
-            // Remove o caractere de nova linha do exército do território
-            countries[i].army[strcspn(countries[i].army, "\n")] = '\0';
+            getInputString(countries[i].army);
 
             // Printa a indicação de que a informação a ser capturada é a quantidade de tropas do território
             printf("Quantidade de tropas do território: \n");
-            scanf("%d", &countries[i].troops);
-
-            // Limpa o buffer de entrada do teclado possibilitando a próxima captura de dados
-            clearInputBuffer();
+            getInputInt(&countries[i].troops);
 
             // Incrementa o contador de territórios cadastrados
             totalCountries++;
@@ -193,3 +223,230 @@ void nivelNovato() {
 
     return;
 };
+
+void printCountries(struct Country *countries, char *title, int totalCountries) {
+    printf("=================================\n");
+    printf("%s\n", title);
+    printf("=================================\n");
+
+    for (int i = 0; i < totalCountries; i++) {
+        // Percorre o vetor de territórios e printa as informações de cada um
+        printf("%d. %s | %s | Tropas: %d\n", i + 1, countries[i].name, countries[i].army, countries[i].troops);
+    }
+    printf("---------------------------------\n");
+}
+
+void mountPresetCountries(struct Country *countries) {
+    strcpy(countries[0].name, "Brasil");
+    strcpy(countries[0].army, "Verde");
+    countries[0].troops = 3;
+    strcpy(countries[1].name, "Argentina");
+    strcpy(countries[1].army, "Azul");
+    countries[1].troops = 3;
+    strcpy(countries[2].name, "Uruguai");
+    strcpy(countries[2].army, "Amarelo");
+    countries[2].troops = 3;
+    strcpy(countries[3].name, "Paraguai");
+    strcpy(countries[3].army, "Vermelho");
+    countries[3].troops = 3;
+    strcpy(countries[4].name, "Chile");
+    strcpy(countries[4].army, "Roxo");
+    countries[4].troops = 3;
+
+    return;
+}
+
+int generateCountries(struct Country *countries) {
+    int totalCountries = 0;
+
+    do {
+        for (int i = 0; i < 5; i++) { // Loop para cadastrar 5 territórios
+
+            // Printa o índice do território que está sendo cadastrado
+            printf("---- Cadastrando território %d: ----\n", i + 1);
+
+            // Printa a indicação de que a informação a ser capturada é o nome do território
+            printf("Nome do território: \n");
+            getInputString(countries[i].name);
+
+            // Printa a indicação de que a informação a ser capturada é o exército do território
+            printf("Exército do território (ex. Verde, Azul, etc.): \n");
+            getInputString(countries[i].army);
+
+            // Printa a indicação de que a informação a ser capturada é a quantidade de tropas do território
+            printf("Quantidade de tropas do território: \n");
+            getInputInt(&countries[i].troops);
+
+            // Incrementa o contador de territórios cadastrados
+            totalCountries++;
+        }
+    } while (totalCountries < 5); // Loop para continuar cadastrando territórios até que o total de territórios cadastrados seja igual a 5
+
+    return totalCountries;
+}
+
+int rollDice() {
+    return rand() % 6 + 1;
+}
+
+void attackCountry(struct Country *countries, int totalCountries) {
+    int attackerIndex = 0;
+    int defenderIndex = 0;
+    printCountries(countries, "           MAPA ATUAL            ", totalCountries);
+    printf("Escolha o território atacante: \n");
+    getInputInt(&attackerIndex);
+    printf("Escolha o território defensor: \n");
+    getInputInt(&defenderIndex);
+
+    struct Country *attacker = &countries[attackerIndex - 1];
+    struct Country *defender = &countries[defenderIndex - 1];
+
+    if (attacker->army == NULL || defender->army == NULL || strcmp(attacker->army, defender->army) == 0) {
+        printf("Atacante e defensor não podem ser do mesmo exército\n");
+        return;
+    }
+
+    if (attacker->troops < 2) {
+        printf("Atacante não pode ter menos de 2 tropas\n");
+        return;
+    }
+
+    int attackerRoll = rollDice();
+    int defenderRoll = rollDice();
+
+    if (attackerRoll > defenderRoll) {
+        defender->troops--;
+        printf("ATACANTE venceu a batalha!\n");
+        printf("Defensor rolou: %d\n", defenderRoll);
+        printf("Atacante rolou: %d\n", attackerRoll);
+        printf("Defensor perdeu 1 tropa\n");
+        if (defender->troops <= 0) {
+            strcpy(defender->army, attacker->army);
+            defender->troops += 1;
+            attacker->troops -= 1;
+            printf("Atacante CONQUISTOU o território\n");
+        }
+
+    } else {
+        attacker->troops--;
+        printf("DEFENSOR venceu a batalha!\n");
+        printf("Defensor rolou: %d\n", defenderRoll);
+        printf("Atacante rolou: %d\n", attackerRoll);
+        printf("Atacante perdeu 1 tropa\n");
+    }
+
+    printf("Aperte 'Enter' para continuar\n");
+    getchar();
+
+    printCountries(countries, "           MAPA ATUAL            ", totalCountries);
+}
+
+void exitGame(struct Country *countries, int totalCountries) {
+    freeCountriesMemory(countries);
+    printf("Saindo do jogo...\n");
+    exit(0);
+    return;
+}
+
+void menu(struct Action *actions, int totalActions, struct Country *countries, int totalCountries) {
+    printf("---------------------------------\n");
+    printf("             MENU               \n");
+    printf("---------------------------------\n");
+    printf("Escolha uma ação: \n");
+
+    for (int i = 0; i < totalActions; i++) {
+        printf("%d. %s\n", actions[i].key, actions[i].name);
+    }
+
+    int action;
+
+    getInputInt(&action);
+
+    struct Action *currentAction = NULL;
+
+    for (int i = 0; i < totalActions; i++) {
+        if (actions[i].key == action) {
+            currentAction = &actions[i];
+            break;
+        }
+    }
+
+    if (currentAction == NULL || currentAction->function == NULL) {
+        printf("Ação inválida\n");
+    } else {
+        currentAction->function(countries, totalCountries);
+    }
+}
+
+struct Country *alocateCountriesMemory() {
+    struct Country *countries = (struct Country *)calloc(MAX_COUNTRIES, sizeof(struct Country));
+
+    if (countries == NULL) {
+        printf("Erro ao alocar memória para os territórios\n");
+        exit(1);
+    }
+
+    return countries;
+}
+
+void freeCountriesMemory(struct Country *countries) {
+    free(countries);
+}
+
+void nivelAventureiro() {
+    // Printa o menu do nível aventureiro e título do jogo
+    // Indicando o que o usuário deve fazer em seguida
+    printf("---------------------------------\n");
+    printf("     ♟️ Nível Aventureiro        \n");
+    printf("             WAR GAME            \n");
+    printf("---------------------------------\n");
+    printf("Vamos começar a montar o jogo!\n");
+    printf("Cadastre 5 territórios\n");
+
+    struct Country *countries = alocateCountriesMemory();
+
+    if (countries == NULL) {
+        printf("Erro ao alocar memória para os territórios\n");
+        exit(1);
+    }
+
+    int totalCountries;
+
+    printf("Deseja cadastrar os territórios manualmente? (s/N)\n");
+
+    char input[MAX_STR_LENGTH];
+
+    getInputString(input);
+    if (input[0] == 's' || input[0] == 'S') {
+        totalCountries = generateCountries(countries);
+    } else {
+        mountPresetCountries(countries);
+        totalCountries = 5;
+    }
+    
+    printCountries(countries, "         MAPA CADASTRADO         ", totalCountries);
+
+    struct Action actions[3] = {
+        {2, "Ver mapa", &printCountries},
+        {1, "Atacar", &attackCountry},
+        {0, "Sair", &exitGame},
+    };
+    int action;
+    while (1) {
+        menu(actions, 3, countries, totalCountries);
+    }
+
+    return;
+}
+
+void nivelMestre() {
+    printf("---------------------------------\n");
+    printf("           Nível Mestre          \n");
+    printf("             WAR GAME            \n");
+    printf("---------------------------------\n");
+    printf("NÃO IMPLEMENTADO AINDA\n");
+    printf("Aperte 'Enter' para sair\n");
+    getchar();
+
+    return;
+}
