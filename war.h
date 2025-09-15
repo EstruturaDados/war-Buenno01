@@ -66,7 +66,7 @@ void attackCountry(struct Country *countries, int totalCountries) {
     struct CollectedData *territoryData = collectUserInputs(territoryFields, 2, "Batalha");
 
     if (territoryData == NULL) {
-        printf("Erro ao coletar dados da batalha\n");
+        printTitle("Erro ao coletar dados da batalha\n");
         return;
     }
 
@@ -79,12 +79,12 @@ void attackCountry(struct Country *countries, int totalCountries) {
     struct Country *defender = &countries[defenderIndex - 1];
 
     if (attacker->army == NULL || defender->army == NULL || strcmp(attacker->army, defender->army) == 0) {
-        printf("Atacante e defensor não podem ser do mesmo exército\n");
+        printTitle("Atacante e defensor não podem ser do mesmo exército\n");
         return;
     }
 
     if (attacker->troops < 2) {
-        printf("Atacante não pode ter menos de 2 tropas\n");
+        printTitle("Atacante não pode ter menos de 2 tropas\n");
         return;
     }
 

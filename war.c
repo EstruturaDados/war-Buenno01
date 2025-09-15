@@ -58,14 +58,14 @@ void countryGenerateOptions(struct Country *countries, int *totalCountries) {
 
     getInputString(input);
     if (input[0] == 's' || input[0] == 'S') {
-        totalCountries = declareCountries(countries, 0);
+        *totalCountries = declareCountries(countries, 0);
     } else {
-        totalCountries = declareCountries(countries, 1);
+        *totalCountries = declareCountries(countries, 1);
     }
 
     free(input);
     
-    printCountries(countries, "         MAPA CADASTRADO         ", totalCountries);
+    printCountries(countries, "MAPA CADASTRADO", *totalCountries);
 }
 
 void nivelMestre() {
