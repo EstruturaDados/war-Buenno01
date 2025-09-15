@@ -90,21 +90,23 @@ void attackCountry(struct Country *countries, int totalCountries) {
 
     int attackerRoll = rollDice();
     int defenderRoll = rollDice();
+    int winnerIsAttacker = 0;
+    int winnerConquered = 0;
 
     if (attackerRoll > defenderRoll) {
         defender->troops--;
+        winnerIsAttacker = 1;
         if (defender->troops <= 0) {
             strcpy(defender->army, attacker->army);
             defender->troops += 1;
             attacker->troops -= 1;
+            winnerConquered = 1;
         }
 
     } else {
         attacker->troops--;
     }
 
-    int winnerIsAttacker = attackerRoll > defenderRoll;
-    int winnerConquered = defender->troops <= 0;
 
     printAttackResult(attacker, defender, attackerRoll, defenderRoll, winnerIsAttacker, winnerConquered);
 
