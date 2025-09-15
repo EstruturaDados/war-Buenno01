@@ -4,8 +4,8 @@
 #include <stdlib.h> // Biblioteca para usar a função rand
 #include "models.h" // Biblioteca para modelos de dados
 #include "user-interface.h" // Biblioteca para funções de interface do usuário
+#include "objectives.h" // Biblioteca para funções de missões
 #include "war.h" // Biblioteca para funções de jogo
-
 void nivelMestre(void);
 
 // --- Função Principal (main) ---
@@ -79,6 +79,7 @@ void nivelMestre() {
         {1, "Atacar", attackAction},
         {0, "Sair", exitAction}
     };
+
     int totalCountries = 0;
 
     printTitle("♟️ Nível Mestre - WAR GAME");
@@ -91,6 +92,8 @@ void nivelMestre() {
     }
 
     countryGenerateOptions(countries, &totalCountries);
+
+    struct Objective *objectives = createObjectives(countries, totalCountries);
 
     struct Action *action;
 

@@ -4,6 +4,7 @@
 #include <string.h>
 #include "models.h"
 #include "user-interface.h"
+#include <time.h>
 
 #define WAR_H
 
@@ -49,6 +50,8 @@ void exitGame(struct Country *countries, struct Action *actions) {
 
 // Função para rolar um dado
 int rollDice() {
+    // Inicializa o gerador de números aleatórios
+    srand(time(NULL));
     return rand() % 6 + 1;
 }
 

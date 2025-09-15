@@ -4,8 +4,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define MAX_STR_LENGTH 50
+
+enum ObjectiveType {
+    DESTROY_ARMY,
+    CONQUER_TERRITORIES
+};
 
 struct Country {
     char name[MAX_STR_LENGTH];
@@ -30,6 +36,17 @@ struct CollectedData {
     char stringValue[MAX_STR_LENGTH];
     int intValue;
     char type[20];
+};
+
+struct Objective {
+    int id;
+    char name[MAX_STR_LENGTH];
+    char description[MAX_STR_LENGTH];
+    bool completed;
+    char army[MAX_STR_LENGTH];
+    enum ObjectiveType type;
+    char target[MAX_STR_LENGTH];
+    int targetCount;
 };
 
 #endif

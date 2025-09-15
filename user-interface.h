@@ -22,13 +22,24 @@ void printCountries(struct Country *countries, char *title, int totalCountries);
 void printCountry(struct Country *country, int index);
 void printAttackResult(struct Country *winner, struct Country *loser, int winnerRoll, int loserRoll, int winnerIsAttacker, int winnerConquered);
 void printSeparator(int width, char border_char);
-
+void printObjective(struct Objective *objective);
 void getInputString(char *output);
 void getInputInt(int *output);
 void clearInputBuffer(void);
 struct CollectedData* collectUserInputs(struct InputField *fields, int fieldCount, char *title);
 void freeCollectedData(struct CollectedData *data);
 void printCollectedData(struct CollectedData *data, int count);
+
+void printObjective(struct Objective *objective) {
+    printf("Missão %d: %s\n", objective->id + 1, objective->name);
+    printf("Descrição: %s\n", objective->description);
+    printf("Completada: %s\n", objective->completed ? "Sim" : "Não");
+    printf("Exército: %s\n", objective->army);
+    printf("Tipo: %s\n", objective->type == DESTROY_ARMY ? "Destruir Exército" : "Conquistar Territórios");
+    printf("Alvo: %s\n", objective->target);
+    printf("Quantidade de alvos: %d\n", objective->targetCount);
+    printSeparator(35, SEPARATOR_BORDER_CHAR);
+}
 
 // Função para imprimir o resultado da batalha
 void printAttackResult(struct Country *winner, struct Country *loser, int winnerRoll, int loserRoll, int winnerIsAttacker, int winnerConquered) {
