@@ -2,23 +2,25 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "models.h"
 #include "user-interface.h"
-#include <time.h>
+#include "objectives.h"
 
 #define WAR_H
 
 #define MAX_COUNTRIES 5
 #define MAX_STR_LENGTH 50
 
-void attackCountry(struct Country *countries, int totalCountries);
-void exitGame(struct Country *countries, struct Action *actions);
+void attackCountry(struct Country *countries, int totalCountries, struct Action *actions, struct Objective *objectives);
+void exitGame(struct Country *countries, struct Action *actions, struct Objective *objectives);
 void mountPresetCountries(struct Country *countries);
 int declareCountries(struct Country *countries, int usePresetCountries);
 int rollDice(void);
 struct Country *alocateCountriesMemory();
 void freeCountriesMemory(struct Country *countries);
 void freeActionMemory(struct Action *actions);
+void freeObjectiveMemory(struct Objective *objectives);
 
 void freeCountriesMemory(struct Country *countries) {
     free(countries);
@@ -26,6 +28,10 @@ void freeCountriesMemory(struct Country *countries) {
 
 void freeActionMemory(struct Action *actions) {
     free(actions);
+}
+
+void freeObjectiveMemory(struct Objective *objectives) {
+    free(objectives);
 }
 
 // Função para alocar memória para os territórios
@@ -40,9 +46,16 @@ struct Country *alocateCountriesMemory() {
     return countries;
 }
 
-void exitGame(struct Country *countries, struct Action *actions) {
-    freeActionMemory(actions);
-    freeCountriesMemory(countries);
+void exitGame(struct Country *countries, struct Action *actions, struct Objective *objectives) {
+    if (actions != NULL) {
+        freeActionMemory(actions);
+    }
+    if (countries != NULL) {
+        freeCountriesMemory(countries);
+    }
+    if (objectives != NULL) {
+        freeObjectiveMemory(objectives);
+    }
     printf("Saindo do jogo...\n");
     exit(0);
     return;
@@ -50,13 +63,11 @@ void exitGame(struct Country *countries, struct Action *actions) {
 
 // Função para rolar um dado
 int rollDice() {
-    // Inicializa o gerador de números aleatórios
-    srand(time(NULL));
     return rand() % 6 + 1;
 }
 
 // Função para atacar um território
-void attackCountry(struct Country *countries, int totalCountries) {
+void attackCountry(struct Country *countries, int totalCountries, struct Action *actions, struct Objective *objectives) {
     int attackerIndex = 0;
     int defenderIndex = 0;
     printCountries(countries, "MAPA ATUAL", totalCountries);
@@ -112,6 +123,18 @@ void attackCountry(struct Country *countries, int totalCountries) {
 
 
     printAttackResult(attacker, defender, attackerRoll, defenderRoll, winnerIsAttacker, winnerConquered);
+
+    struct Objective *objective = checkObjectiveCompletion(objectives, totalCountries, countries, totalCountries, attacker);
+
+    if (objective != NULL && objective->completed) {
+        printTitle("Missão completada!\n");
+        printObjective(objective);
+
+        printf("Aperte 'Enter' para continuar\n");
+        getchar();
+
+        exitGame(countries, actions, objectives);
+    }
 
     printf("Aperte 'Enter' para continuar\n");
     getchar();

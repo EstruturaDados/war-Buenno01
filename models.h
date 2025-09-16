@@ -19,10 +19,21 @@ struct Country {
     int troops;
 };
 
+struct Objective {
+    int id;
+    char name[MAX_STR_LENGTH];
+    char description[MAX_STR_LENGTH];
+    bool completed;
+    char army[MAX_STR_LENGTH];
+    enum ObjectiveType type;
+    char target[MAX_STR_LENGTH];
+    int targetCount;
+};
+
 struct Action {
     int key;
     char name[MAX_STR_LENGTH];
-    void (*function)(struct Country *, int, struct Action *);
+    void (*function)(struct Country *, int, struct Action *, struct Objective *);
 };
 
 // Estrutura para definir campos de entrada
@@ -36,17 +47,6 @@ struct CollectedData {
     char stringValue[MAX_STR_LENGTH];
     int intValue;
     char type[20];
-};
-
-struct Objective {
-    int id;
-    char name[MAX_STR_LENGTH];
-    char description[MAX_STR_LENGTH];
-    bool completed;
-    char army[MAX_STR_LENGTH];
-    enum ObjectiveType type;
-    char target[MAX_STR_LENGTH];
-    int targetCount;
 };
 
 #endif

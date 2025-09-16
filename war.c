@@ -11,6 +11,9 @@ void nivelMestre(void);
 // --- Função Principal (main) ---
 // Função principal que orquestra o fluxo do jogo, chamando as outras funções em ordem.
 int main() {
+    // Inicializa o gerador de números aleatórios com o tempo atual
+    srand(time(NULL));
+
     int version;
 
     nivelMestre();
@@ -18,37 +21,49 @@ int main() {
     return 0;
 }
 
-// exibirMissao():
-// Exibe a descrição da missão atual do jogador com base no ID da missão sorteada.
-
-// faseDeAtaque():
-// Gerencia a interface para a ação de ataque, solicitando ao jogador os territórios de origem e destino.
-// Chama a função simularAtaque() para executar a lógica da batalha.
-
-// simularAtaque():
-// Executa a lógica de uma batalha entre dois territórios.
-// Realiza validações, rola os dados, compara os resultados e atualiza o número de tropas.
-// Se um território for conquistado, atualiza seu dono e move uma tropa.
-
-// sortearMissao():
-// Sorteia e retorna um ID de missão aleatório para o jogador.
-
-// verificarVitoria():
-// Verifica se o jogador cumpriu os requisitos de sua missão atual.
-// Implementa a lógica para cada tipo de missão (destruir um exército ou conquistar um número de territórios).
-// Retorna 1 (verdadeiro) se a missão foi cumprida, e 0 (falso) caso contrário.
-
-// Funções auxiliares para as ações do menu
-void printMapAction(struct Country *countries, int totalCountries, struct Action *actions) {
+void printMapAction(struct Country *countries, int totalCountries, struct Action *actions, struct Objective *objectives) {
     printCountries(countries, "MAPA ATUAL", totalCountries);
 }
 
-void attackAction(struct Country *countries, int totalCountries, struct Action *actions) {
-    attackCountry(countries, totalCountries);
+void attackAction(struct Country *countries, int totalCountries, struct Action *actions, struct Objective *objectives) {
+    attackCountry(countries, totalCountries, actions, objectives);
 }
 
-void exitAction(struct Country *countries, int totalCountries, struct Action *actions) {
-    exitGame(countries, actions);
+void printObjectivesAction(struct Country *countries, int totalCountries, struct Action *actions, struct Objective *objectives) {
+    printCountries(countries, "MAPA ATUAL", totalCountries);
+    struct InputField objectivesFields[] = {
+        {"Número do território controlado pelo jogador:", "int"}
+    };
+    struct CollectedData *territoryData = collectUserInputs(objectivesFields, 1, "Missões");
+
+    if (territoryData == NULL) {
+        printTitle("Erro ao coletar dados das missões\n");
+    }
+
+    int territoryIndex = territoryData[0].intValue;
+
+    freeCollectedData(territoryData);
+
+    char targetArmy[MAX_STR_LENGTH];
+    strcpy(targetArmy, countries[territoryIndex - 1].army);
+
+    struct Objective *objective = NULL;
+
+    for (int i = 0; i < totalCountries; i++) {
+        if (strcmp(countries[i].army, targetArmy) == 0) {
+            objective = &objectives[i];
+            break;
+        }
+    }
+
+    if (objective != NULL) {
+        printObjective(objective);
+    }
+
+}
+
+void exitAction(struct Country *countries, int totalCountries, struct Action *actions, struct Objective *objectives) {
+    exitGame(countries, actions, objectives);
 }
 
 void countryGenerateOptions(struct Country *countries, int *totalCountries) {
@@ -74,7 +89,8 @@ void nivelMestre() {
     // Aloca a memória para os territórios
     struct Country *countries = alocateCountriesMemory();
     
-    struct Action actions[3] = {
+    struct Action actions[4] = {
+        {3, "Ver missões", printObjectivesAction},
         {2, "Ver mapa", printMapAction},
         {1, "Atacar", attackAction},
         {0, "Sair", exitAction}
@@ -98,14 +114,14 @@ void nivelMestre() {
     struct Action *action;
 
     while (1) {
-        action = renderMenu(actions, 3);
+        action = renderMenu(actions, 4);
 
         if (action == NULL) {
             printf("Opção inválida\n");
             continue;
         }
 
-        action->function(countries, totalCountries, actions);
+        action->function(countries, totalCountries, actions, objectives);
     }
 
     return;

@@ -1,20 +1,17 @@
 #ifndef OBJECTIVES_H
 #define OBJECTIVES_H
 
-#include "models.h"
-#include "user-interface.h"
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include "models.h"
+#include "user-interface.h"
 
 struct Objective *checkObjectiveCompletion(struct Objective *objectives, int totalObjectives, struct Country *countries, int totalCountries, struct Country *attacker);
 void pickObjective(struct Objective *objectives, int totalObjectives);
 struct Objective *createObjectives(struct Country *countries, int totalCountries);
 
-struct Objective *createObjectives(struct Country *countries, int totalCountries) {
-    // Inicializa o gerador de números aleatórios
-    srand(time(NULL));
-    
+struct Objective *createObjectives(struct Country *countries, int totalCountries) {    
     struct Objective *objectives = malloc(totalCountries * sizeof(struct Objective));
 
     if (objectives == NULL) {
@@ -67,13 +64,17 @@ struct Objective *createObjectives(struct Country *countries, int totalCountries
 }
 
 struct Objective *checkObjectiveCompletion(struct Objective *objectives, int totalObjectives, struct Country *countries, int totalCountries, struct Country *attacker) {
-    struct Objective *attackerObjective = malloc(sizeof(struct Objective));
+    struct Objective *attackerObjective = NULL;
 
     for (int i = 0; i < totalObjectives; i++) {
         if (strcmp(objectives[i].army, attacker->army) == 0) {
             attackerObjective = &objectives[i];
             break;
         }
+    }
+
+    if (attackerObjective == NULL) {
+        return NULL;
     }
 
     int targetTerritories = 0;
