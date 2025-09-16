@@ -8,17 +8,20 @@
 
 #define MAX_STR_LENGTH 50
 
+// enum para definir o tipo de missão
 enum ObjectiveType {
     DESTROY_ARMY,
     CONQUER_TERRITORIES
 };
 
+// estrutura para definir o país
 struct Country {
     char name[MAX_STR_LENGTH];
     char army[MAX_STR_LENGTH];
     int troops;
 };
 
+// estrutura para definir a missão
 struct Objective {
     int id;
     char name[MAX_STR_LENGTH];
@@ -30,6 +33,7 @@ struct Objective {
     int targetCount;
 };
 
+// estrutura para definir a ação
 struct Action {
     int key;
     char name[MAX_STR_LENGTH];

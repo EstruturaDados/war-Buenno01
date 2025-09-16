@@ -12,6 +12,7 @@
 #define MAX_COUNTRIES 5
 #define MAX_STR_LENGTH 50
 
+// pré-declaração das funções
 void attackCountry(struct Country *countries, int totalCountries, struct Action *actions, struct Objective *objectives);
 void exitGame(struct Country *countries, struct Action *actions, struct Objective *objectives);
 void mountPresetCountries(struct Country *countries);
@@ -22,6 +23,7 @@ void freeCountriesMemory(struct Country *countries);
 void freeActionMemory(struct Action *actions);
 void freeObjectiveMemory(struct Objective *objectives);
 
+// funções de liberação de memória
 void freeCountriesMemory(struct Country *countries) {
     free(countries);
 }
@@ -46,6 +48,7 @@ struct Country *alocateCountriesMemory() {
     return countries;
 }
 
+// Função para sair do jogo e liberar a memória
 void exitGame(struct Country *countries, struct Action *actions, struct Objective *objectives) {
     if (actions != NULL) {
         freeActionMemory(actions);
@@ -77,6 +80,9 @@ void attackCountry(struct Country *countries, int totalCountries, struct Action 
         {"Número do território defensor", "int"}
     };
 
+    // coleta os dados do usuário retornando um array com duas posições
+    // a primeira posição é o número do território atacante
+    // a segunda posição é o número do território defensor
     struct CollectedData *territoryData = collectUserInputs(territoryFields, 2, "Batalha");
 
     if (territoryData == NULL) {
@@ -84,19 +90,23 @@ void attackCountry(struct Country *countries, int totalCountries, struct Action 
         return;
     }
 
+    // atribui os valores coletados das estruturas de input para as variáveis
     attackerIndex = territoryData[0].intValue;
     defenderIndex = territoryData[1].intValue;
 
     freeCollectedData(territoryData);
 
+    // utiliza os índices coletados para buscar os territórios atacante e defensor
     struct Country *attacker = &countries[attackerIndex - 1];
     struct Country *defender = &countries[defenderIndex - 1];
 
+    // verifica se o atacante e o defensor são do mesmo exército
     if (attacker->army == NULL || defender->army == NULL || strcmp(attacker->army, defender->army) == 0) {
         printTitle("Atacante e defensor não podem ser do mesmo exército\n");
         return;
     }
 
+    // O atacante só pode atacar se tiver pelo menos 2 tropas
     if (attacker->troops < 2) {
         printTitle("Atacante não pode ter menos de 2 tropas\n");
         return;
@@ -108,25 +118,29 @@ void attackCountry(struct Country *countries, int totalCountries, struct Action 
     int winnerConquered = 0;
 
     if (attackerRoll > defenderRoll) {
+        // quando o atacante vence, o defensor perde 1 tropa
         defender->troops--;
         winnerIsAttacker = 1;
         if (defender->troops <= 0) {
+            // quando o defensor perde todas as tropas, o território é conquistado pelo atacante
             strcpy(defender->army, attacker->army);
             defender->troops += 1;
             attacker->troops -= 1;
             winnerConquered = 1;
         }
-
     } else {
+        // quando o defensor vence, o atacante perde 1 tropa
         attacker->troops--;
     }
 
-
+    // imprime o resultado da batalha
     printAttackResult(attacker, defender, attackerRoll, defenderRoll, winnerIsAttacker, winnerConquered);
 
+    // verifica se a missão foi completada
     struct Objective *objective = checkObjectiveCompletion(objectives, totalCountries, countries, totalCountries, attacker);
 
     if (objective != NULL && objective->completed) {
+        // se a missão foi completada, imprime o resultado e sai do jogo
         printTitle("Missão completada!\n");
         printObjective(objective);
 
@@ -139,6 +153,7 @@ void attackCountry(struct Country *countries, int totalCountries, struct Action 
     printf("Aperte 'Enter' para continuar\n");
     getchar();
 
+    // imprime o mapa atual atualizado
     printCountries(countries, "MAPA ATUAL", totalCountries);
 }
 
@@ -146,14 +161,15 @@ void attackCountry(struct Country *countries, int totalCountries, struct Action 
 int declareCountries(struct Country *countries, int usePresetCountries) {
     int totalCountries = 0;
 
+    // se o usuário escolheu usar os territórios pré-definidos, monta os territórios e retorna o total de territórios
     if (usePresetCountries) {
         mountPresetCountries(countries);
         totalCountries = MAX_COUNTRIES;
         return totalCountries;
     }
 
+    // Loop para cadastrar 5 territórios
     for (int i = 0; i < MAX_COUNTRIES; i++) {
-        // Loop para cadastrar 5 territórios
         printTitle("Cadastro de Territórios");
 
         // Define os campos para coleta de dados do território
